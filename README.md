@@ -3,10 +3,10 @@
 A powerful application that combines Google OAuth authentication with an intelligent SQL assistant powered by Agent SDK. Users authenticate with Google accounts to access an agent interface that converts natural language to optimized SQL queries for MySQL databases.
 
 ## 📊 Project Demo
-https://github.com/user-attachments/assets/88d80b76-13bf-4ae4-82d0-c10c215fa830
+https://github.com/user-attachments/assets/f7fed1ed-3735-4278-8269-86aa5cfda9d3
 
 ## 🔄 Flow of Events
-![Image](https://github.com/user-attachments/assets/b3dc87bd-a279-4fa7-b536-13c1a9eee8de)
+![Image](https://github.com/user-attachments/assets/9da0fa80-1da6-4433-8e69-f842ed064787)
 
 ## 🌟 Features
 
