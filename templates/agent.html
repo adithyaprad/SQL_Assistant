@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Interface</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Add Highlight.js for code syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header class="app-header">
+        <div class="container">
+            <div class="header-content">
+                <a href="{{ url_for('index') }}" class="app-logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 16v-4"></path>
+                        <path d="M12 8h.01"></path>
+                    </svg>
+                    Agent Framework
+                </a>
+                <div class="header-actions">
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        Home
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="agent-layout">
+            <!-- History Sidebar -->
+            <div class="history-sidebar">
+                <div class="history-header">
+                    <h3>Query History</h3>
+                    {% if history %}
+                    <button id="clear-history" class="btn btn-outline-danger btn-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                        Clear
+                    </button>
+                    {% endif %}
+                </div>
+                
+                <div class="history-list">
+                    {% if history %}
+                        {% for item in history %}
+                        <div class="history-item" data-query="{{ item.query }}" data-result="{{ item.result }}">
+                            <div class="history-item-content">
+                                <div class="history-item-query">{{ item.query[:50] }}{% if item.query|length > 50 %}...{% endif %}</div>
+                                <div class="history-item-time">{{ item.timestamp }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="history-empty">
+                            <p>No query history yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="agent-content card animate-fade-in">
+                <div class="card-header">
+                    <h2 class="card-title">Agent Interface</h2>
+                </div>
+                
+                <p>Enter your query for the agent framework below:</p>
+                
+                <form action="{{ url_for('submit_query') }}" method="post">
+                    <div class="form-group query-input">
+                        <textarea name="query" class="form-control" rows="3" placeholder="Enter your query here...">{{ query if query else '' }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                        Submit Query
+                    </button>
+                </form>
+                
+                {% if result %}
+                <div class="result-container">
+                    <div class="result-header">
+                        <h4>Result:</h4>
+                        <button id="copy-result" class="btn btn-outline-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+                            </svg>
+                            Copy All
+                        </button>
+                    </div>
+                    <div class="result-area">
+                        <div class="markdown-body" id="markdown-result"></div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="footer-note">
+                    <p>Make sure the ADK Web service is running. If not, <a href="{{ url_for('start_adk_web') }}">click here</a> to start it.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Add Highlight.js for code syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    {% if result %}
+    <script>
+        // Configure marked with highlight.js
+        marked.setOptions({
+            highlight: function(code, lang) {
+                const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+                return hljs.highlight(code, { language }).value;
+            },
+            langPrefix: 'hljs language-',
+            gfm: true,
+            breaks: true
+        });
+        
+        // Get the result content
+        const resultContent = `{{ result|safe }}`;
+        
+        // Render markdown
+        document.getElementById('markdown-result').innerHTML = marked.parse(resultContent);
+        
+        // Apply highlight.js to code blocks
+        document.querySelectorAll('.markdown-body pre code').forEach((block) => {
+            hljs.highlightBlock(block);
+        });
+
+        // Copy all result functionality
+        document.getElementById('copy-result').addEventListener('click', function() {
+            const resultText = document.getElementById('markdown-result').innerText;
+            navigator.clipboard.writeText(resultText).then(() => {
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg> Copied!';
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                }, 2000);
+            });
+        });
+    </script>
+    {% endif %}
+
+    <script>
+        // Handle history item clicks
+        document.querySelectorAll('.history-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const query = this.getAttribute('data-query');
+                const result = this.getAttribute('data-result');
+                
+                // Fill the query textarea
+                document.querySelector('textarea[name="query"]').value = query;
+                
+                // If there's a result container, update it
+                if (document.getElementById('markdown-result')) {
+                    document.getElementById('markdown-result').innerHTML = marked.parse(result);
+                    
+                    // Apply highlight.js to code blocks
+                    document.querySelectorAll('.markdown-body pre code').forEach((block) => {
+                        hljs.highlightBlock(block);
+                    });
+                } else {
+                    // If no result container exists yet, create one
+                    const resultContainer = document.createElement('div');
+                    resultContainer.className = 'result-container';
+                    resultContainer.innerHTML = `
+                        <div class="result-header">
+                            <h4>Result:</h4>
+                            <button id="copy-result" class="btn btn-outline-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+                                </svg>
+                                Copy All
+                            </button>
+                        </div>
+                        <div class="result-area">
+                            <div class="markdown-body" id="markdown-result"></div>
+                        </div>
+                    `;
+                    
+                    // Add the result container before the footer note
+                    const footerNote = document.querySelector('.footer-note');
+                    footerNote.parentNode.insertBefore(resultContainer, footerNote);
+                    
+                    // Now render the markdown
+                    document.getElementById('markdown-result').innerHTML = marked.parse(result);
+                    
+                    // Add copy functionality
+                    document.getElementById('copy-result').addEventListener('click', function() {
+                        const resultText = document.getElementById('markdown-result').innerText;
+                        navigator.clipboard.writeText(resultText).then(() => {
+                            const originalText = this.innerHTML;
+                            this.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg> Copied!';
+                            setTimeout(() => {
+                                this.innerHTML = originalText;
+                            }, 2000);
+                        });
+                    });
+                }
+                
+                // Highlight the clicked history item
+                document.querySelectorAll('.history-item').forEach(el => {
+                    el.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        // Clear history button functionality
+        const clearHistoryBtn = document.getElementById('clear-history');
+        if (clearHistoryBtn) {
+            clearHistoryBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to clear your query history?')) {
+                    // Send request to clear history
+                    fetch('/clear_history', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            window.location.reload();
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html> 

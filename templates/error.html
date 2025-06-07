@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Error</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .error-container {
+            background-color: #ffeeee;
+            border-left: 5px solid #ff6b6b;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #4285F4;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .btn:hover {
+            background-color: #3367D6;
+        }
+    </style>
+</head>
+<body>
+    <h1>Authentication Error</h1>
+    
+    <div class="error-container">
+        <p>{{ error }}</p>
+    </div>
+    
+    <p>There was a problem authenticating with Google. This could be due to:</p>
+    <ul>
+        <li>Session expiration</li>
+        <li>Browser cookie settings</li>
+        <li>Network issues</li>
+    </ul>
+    
+    <a href="{{ url_for('login') }}" class="btn">Try Again</a>
+    <a href="{{ url_for('index') }}" class="btn">Back to Home</a>
+</body>
+</html> 
